@@ -1,61 +1,3 @@
-<?php
-
-// define variables and set to empty values
-$firstname = $lastname = $email = $message = $name = "";
-
-if ($_POST['contact_form_submitted']) {
-
-  $firstname = test_input($_POST["firstname"]);
-  $lastname = test_input($_POST["lastname"]);
-  $email = test_input($_POST["email"]);
-  $comments = test_input($_POST["comments"]);
-  $name = $firstname . " " . $lastname;
-
-  $to      = 'jpheider@gmail.com';
-  $subject = 'From Jordanheider.com Contact Form';
-
-  $message = '
-  <style type="text/css" media="all">
-  	body { font-family:Arial; }
-  	table { border:none; }
-  	th { text-align:left; vertical-align:top; width:30%; }
-  	td { vertical-align:top; }
-  </style>
-  <body>
-  <p>The following information was submitted from the <strong>Contact Form</strong> on the <em>JordanHeider.com</em> website:</p>
-  <table>
-  	<tr>
-  		<th align="left">Name:</th>
-  		<td>' . $name . '</td>
-  	</tr>
-  	<tr>
-  		<th align="left">E-mail Address:</th>
-  		<td>' . $email . '</td>
-  	</tr>
-  	<tr>
-  		<th align="left">Comments:</th>
-  		<td>' . $comments . '</td>
-  	</tr>
-  </table>
-  </body>
-  ';
-
-  $headers = "From: " . $name . "\r\n"
-  . "MIME-Version: 1.0\r\n"
-  . "Content-Type: text/html; charset=ISO-8859-1\r\n"
-  . "Reply-To: " . $email . "\r\n"
-  . "X-Mailer: PHP/" . phpversion();
-
-  mail($to, $subject, $message, $headers);
-}
-
-function test_input($data) {
-  $data = trim($data); // remove unnecessary characters (extra spaces, tabs, new lines)
-  $data = stripslashes($data); //remove backslashes from user input
-  $data = htmlspecialchars($data); //prevent js injection, and XSS
-  return $data;
-}
-?>
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -88,41 +30,6 @@ function test_input($data) {
 
 <script type="text/javascript">
  $(document).ready(function(){
-
-    //Form disable submit until fields are filled out
-    $('#contact .submit').prop('disabled', true);
-    console.log('disabled');
-    $('#contact textarea').on('keyup', function(){
-      if ( $('#firstname').val() && $('#lastname').val() && $('#email').val() && $('#comments').val() ) {
-        console.log('enabled');
-        $('#contact .submit').prop('disabled', false);
-      }
-    });
-
-    //Form prevent page reload on submit
-    $('#contact .submit').on('click', function(e) {
-      $successMessage = '<p class="thankyou-pic"><img src="images/Vicks-laptop.jpg" width="100%; height="auto" alt="Vicks on computer"/></p><h1 class="text-center">Thank you for the message!</h1><p class="text-center">I\'ll respond as soon as the boss is done with the Macbook.</p>';
-      $.ajax({ //ajax call to send email
-        type: "POST",
-        url: "index.php",
-        data: {
-          "contact_form_submitted" : true,
-          "firstname" : $('#firstname').val(),
-          "lastname" : $('#lastname').val(),
-          "email" : $('#email').val(),
-          "comments" : $('#comments').val()
-        },
-        success: function(msg){
-          console.log('Successful submission. ');
-          $('#contactblock').html($successMessage);
-        }, //end success: function
-        error: function(xhr, desc, err) {
-          console.log(xhr + "\n" + err);
-        }// end error: function
-      });//end ajax
-      e.preventDefault();
-
-    })
 
     $('body').scrollspy({ target: '.navbar' });
 
@@ -442,55 +349,23 @@ function test_input($data) {
         <div class="row">
           <div id="contactblock" class="col-md-6 col-md-offset-2">
             <div class="form-intro">
-              <p class="text-center">Send me a message if you've got a project you'd like some help with, or you just want to say something about the work.</p><p class="text-center">I'm always interested in feedback, or new freelancing opportunities.</p>
-            </div><!-- .form-intro -->
+                <p style="text-align:center"><a href="https://www.linkedin.com/in/jordan-heider/" class="btn btn-custom"><i class="fa fa-linkedin-square"></i> <span>LinkedIn</span></a></p>
+              <p class="text-center">Send me a message through LinkedIn if you've got a project you'd like some help with.</p><p class="text-center">I'm always interested new freelancing opportunities.</p>
 
-            <form id="contact" class="center-block" target="_self" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post">
-              <label><em>All fields are required.</em></label>
-              <input type="hidden" name="contact_form_submitted" value="1" id="contact_form_submitted">
-              <div class="row">
-                <div class="form-group col-md-6">
-                  <label class="sr-only" for="firstname">First name</label>
-                  <input type="text" class="form-control" id="firstname" name="firstname" placeholder="First name">
-                  <span class="error">* $firstnameErr;</span>
-                </div><!-- .form-group col-md-3 -->
-                <div class="form-group col-md-6">
-                  <label class="sr-only" for="lastname">Last name</label>
-                  <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Last name">
-                  <span class="error">* $lastnameErr;</span>
-                </div><!-- .form-group col-md-3 -->
-              </div><!-- .row -->
-              <div class="row">
-                <div class="form-group col-md-12">
-                  <label class="sr-only" for="email">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" placeholder="Email address">
-                  <span class="error">* $emailErr;</span>
-                </div><!-- .form-group col-md-6 -->
-              </div><!-- .row -->
-              <div class="row">
-                <div class="form-group col-md-12">
-                  <label for="comments"><em>Enter your comments, questions or project information below.</em></label>
-                  <textarea name="comments" id="comments" class="form-control" rows="5"></textarea>
-                </div><!-- .form-group col-md-3 -->
-              </div><!-- .row -->
-              <div class="row">
-                <div class="form-group col-md-12">
-                <button type="submit" name="submit" class="submit center-block btn btn-primary">Submit message</button>
-                </div><!-- .form-group col-md-3 -->
-              </div><!-- .row -->
-            </form>
+             
+            </div><!-- .form-intro -->
           </div><!-- .col-md-6 .col-md-offset-2 -->
 
-        <div class="list-inline">
-          <div class="col-md-3">
-          <p class="connect-header">Other ways to connect:</p>
-          <p><a href="https://github.com/Jordash" class="btn btn-custom"><i class="glyphicon fa fa-git-square"></i>  <span>GitHub</span></a></p>
-          <p><a href="https://www.linkedin.com/in/jordan-heider/" class="btn btn-custom"><i class="fa fa-linkedin-square"></i> <span>LinkedIn</span></a></p>
-          <p><a href="https://www.facebook.com/jordan.heider" class="btn btn-custom"><i class="fa fa-facebook-square"></i> <span>Facebook</span></a></p>
-          <p><a href="http://www.freecodecamp.com/jordash" class="btn btn-custom"><i class="fa fa-cog"></i> <span>FreeCodeCamp</span></a></p>
-          </div><!-- .col-md-3 -->
-          </div><!-- .row list-inline -->
-			</div><!-- .v-center -->
+            <div class="list-inline">
+                <div class="col-md-3">
+                    <p class="connect-header">Other ways to connect:</p>
+                    <p><a href="https://github.com/Jordash" class="btn btn-custom"><i class="glyphicon fa fa-git-square"></i>  <span>GitHub</span></a></p>
+
+                    <p><a href="https://www.facebook.com/jordan.heider" class="btn btn-custom"><i class="fa fa-facebook-square"></i> <span>Facebook</span></a></p>
+                    <p><a href="http://www.freecodecamp.com/jordash" class="btn btn-custom"><i class="fa fa-cog"></i> <span>FreeCodeCamp</span></a></p>
+                </div><!-- .col-md-3 -->
+            </div><!-- .row list-inline -->
+		</div><!-- .v-center -->
     </section>
   </div>
 
